@@ -14,10 +14,12 @@ class SendDataProcess(Process):
                             "HttpHost", "HttpUri"]
         self.rename_dict = {"StartDate(ms)": "StartDate", "Duration(ms)": "Duration"}
         self.fill_na_dict = {"HttpHost": "", "HttpUri": ""}
-        self.concat_dict = {"Url": ["HttpHost", "HttpUri"]}
+        self.concat_dict = {"Url": ["HttpHost", "HttpUri", "HttpHost", "HttpUri"]}
 
         self.connection_str = 'Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=At6ZRNcxdsdIO2m2Xx1kpHhAjwDK6ht4C2gObpEiaHY=;EntityPath=m1-eventhub-test-minhnkb'
         self.eventhub_name = 'm1-eventhub-test-minhnkb'
+        self.EVENT_PER_BATCH = 10000
+        self.metadata = {"FilePath" : file_path, "SourceSystem" : "ROC"}
 
     def run(self):
         start = datetime.now()
@@ -31,7 +33,8 @@ class SendDataProcess(Process):
         step = datetime.now()
         logging.info("Thread %s - %s loaded data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
-        event_sender = EventSender(self.connection_str, self.eventhub_name, 4000)
+        event_sender = EventSender(self.connection_str, self.eventhub_name, self.EVENT_PER_BATCH, self.metadata)
+
         event_sender.send(processed_df)
         event_sender.close()
 

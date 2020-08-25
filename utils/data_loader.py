@@ -1,12 +1,13 @@
 import pandas as pd
-
+import functools
+import logging
 
 class DataLoader:
     def __init__(self):
         pass
 
     def load(self, file_path, columns_seletion, compression='gzip', error_bad_lines=False, rename_dict=None,
-             fill_na_dict=None, concat_dict=None, include_file_path = True, source_system = "ROC", to_lower=True):
+             fill_na_dict=None, concat_dict=None, to_lower=True):
         # Load raw data
         raw_df = pd.read_csv(file_path, compression=compression, error_bad_lines=error_bad_lines)
 
@@ -25,17 +26,13 @@ class DataLoader:
         # Concatenate multiple columns to a new one
         if concat_dict is not None:
             for k, v in concat_dict.items():
-                filtered_df[k] = filtered_df[v].apply(lambda row: ''.join(row.values.astype(str)), axis=1)
+                filtered_df[k] = pd.Series(map("".join,filtered_df[v].values.tolist()),index=filtered_df.index)
 
         # Filter data by rows condition
         # TODO
 
         # Use Zvelo to add column
         # TODO
-
-        # Add metadata columns
-        # filtered_df["FilePath"] = file_path
-        # filtered_df["SourceSystem"] = source_system
 
         # Convert all columns to lower
         if to_lower:
