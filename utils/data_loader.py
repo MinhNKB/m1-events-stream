@@ -6,17 +6,13 @@ class DataLoader:
     def __init__(self):
         pass
 
-    def load(self, file_path, columns_seletion, compression='gzip', error_bad_lines=False, rename_dict=None,
-             fill_na_dict=None, concat_dict=None, to_lower=True):
+    def load(self, byte_io, columns_seletion, compression='gzip', error_bad_lines=False,
+             fill_na_dict=None, concat_dict=None, rename_dict=None, to_lower=True):
         # Load raw data
-        raw_df = pd.read_csv(file_path, compression=compression, error_bad_lines=error_bad_lines)
+        raw_df = pd.read_csv(byte_io, compression=compression, error_bad_lines=error_bad_lines, dtype=str)
 
         # Filter selected columns
         filtered_df = raw_df.filter(columns_seletion)
-
-        # Rename columns
-        if rename_dict is not None:
-            filtered_df.rename(columns=rename_dict, inplace=True)
 
         # Fill NA by specific values
         if fill_na_dict is not None:
@@ -33,6 +29,14 @@ class DataLoader:
 
         # Use Zvelo to add column
         # TODO
+        filtered_df["appname"] = ""
+        filtered_df["category0"] = ""
+        filtered_df["category1"] = ""
+        filtered_df["category2"] = ""
+
+        # Rename columns
+        if rename_dict is not None:
+            filtered_df.rename(columns=rename_dict, inplace=True)
 
         # Convert all columns to lower
         if to_lower:

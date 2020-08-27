@@ -1,0 +1,48 @@
+{
+  "process_interval_seconds" : 10,
+  "load_configs": {
+    "columns_seletion": [
+      "UserID",
+      "MSISDN",
+      "StartDate(ms)",
+      "Duration(ms)",
+      "UploadVolume",
+      "DownloadVolume",
+      "HttpHost",
+      "HttpUri"
+    ],
+    "fill_na_dict": {
+      "HttpHost": "",
+      "HttpUri": ""
+    },
+    "concat_dict": {
+      "Url": [
+        "HttpHost",
+        "HttpUri"
+      ]
+    },
+    "rename_dict": {
+      "StartDate(ms)": "StartDate",
+      "Duration(ms)": "Duration"
+    }
+  },
+  "sftp": {
+    "host": "20.184.62.23",
+    "port": 22,
+    "username": "jaadmin",
+    "password": "JAWelcome@2020",
+    "folder_path" : "/home/minhnkb/m1-events-stream/sample-data",
+    "start_reload_from_seconds" : 100000,
+    "process_from_last_seconds" : 20,
+    "max_retry" : 10
+  },
+  "eventhub": {
+    "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=eGzS1McwOPqcpRr2aeG/9KOWgrVAvPBbxn5vYGWt3q8=;EntityPath=m1-event",
+    "eventhub_name": "m1-event",
+    "max_event_per_batch": 10000,
+    "max_retry" : 10
+  },
+  "metadata": {
+    "source": "ROC"
+  }
+}
