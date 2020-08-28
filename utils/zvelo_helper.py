@@ -1,13 +1,12 @@
 import sys
-sys.path.insert(1, '/home/bigdata/luy/python2.6/site-packages/')
 from SiteFilterDB import *
 
 class ZveloHelper:
     def __init__(self, path, host, serial):
+        print(path, host, serial)
         r = url_init(path, 0, host, serial);
         if r:
             print url_errstr(r)
-        versions()
 
     def process_list_urls(self, urls):
         results = []

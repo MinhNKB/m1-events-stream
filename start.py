@@ -2,6 +2,7 @@ import argparse
 import json
 from utils.file_watcher import FileWatcher
 from utils.process_helper import ProcessHelper
+from utils.zvelo_helper import ZveloHelper
 import time
 import os
 
@@ -20,9 +21,9 @@ def start(config_file):
         else:
             processed_files = set()
 
-        process_helper = ProcessHelper(configs["sftp"], configs["load_configs"], configs["zvelo"],
-                                       configs["eventhub"], configs["metadata"], configs["max_process_count"],
-                                       configs["processed_files_log"])
+        process_helper = ProcessHelper(configs["sftp"], configs["load_configs"],
+                                       configs["eventhub"], configs["metadata"],
+                                       configs["max_process_count"], configs["processed_files_log"])
 
         sftp_configs = configs["sftp"]
         file_watcher = FileWatcher(sftp_configs["host"], sftp_configs["port"],
@@ -31,6 +32,7 @@ def start(config_file):
         is_initial_run = True
 
         while True:
+            logging.info("Invoke file watcher")
             if is_initial_run:
                 files_to_process = file_watcher.get_files_to_process(sftp_configs["folder_path"],
                                                                      sftp_configs["start_reload_from_seconds"], processed_files)

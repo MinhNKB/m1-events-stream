@@ -40,11 +40,6 @@
     "process_from_last_seconds" : 30,
     "max_retry" : 10
   },
-  "zvelo" : {
-    "path" : "",
-    "host" : "",
-    "serial" : ""
-  },
   "eventhub": {
     "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=tSVopKkJ8YVBZn2HZ+wgW04gmCKLaUHgTkIJUMNmup0=;EntityPath=m1-eventhub",
     "eventhub_name": "m1-eventhub",
@@ -52,6 +47,6 @@
     "max_retry" : 10
   },
   "metadata": {
-    "source": "ROC"
+    "source": "MOC"
   }
 }
