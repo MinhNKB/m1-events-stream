@@ -30,9 +30,9 @@ class DataLoader:
 
         # Use Zvelo to add column
         # TODO
-        filtered_df["category0"] = ""
-        filtered_df["category1"] = ""
-        filtered_df["category2"] = ""
+        # filtered_df["category0"] = ""
+        # filtered_df["category1"] = ""
+        # filtered_df["category2"] = ""
 
         # Rename columns
         if rename_dict is not None:
