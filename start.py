@@ -9,7 +9,7 @@ import os
 import logging
 logging.basicConfig(level=logging.INFO)
 
-def start(config_file):
+def start(config_file, zvelo_helper):
     process_helper = None
     file_watcher = None
     try:
@@ -22,7 +22,7 @@ def start(config_file):
             processed_files = set()
 
         process_helper = ProcessHelper(configs["sftp"], configs["load_configs"],
-                                       configs["eventhub"], configs["metadata"],
+                                       configs["eventhub"], configs["metadata"], zvelo_helper,
                                        configs["max_process_count"], configs["processed_files_log"])
 
         sftp_configs = configs["sftp"]
@@ -59,8 +59,14 @@ def start(config_file):
 
 
 if __name__ == '__main__':
+    path = "/data/zvelo_urldb"
+    host = ""
+    serial = ""
+    zvelo_helper = ZveloHelper(path, 0, host, serial)
+    logging.info("Zvelo Initialzed")
+
     parser = argparse.ArgumentParser(description='Start the streaming process.')
     parser.add_argument('-c', '--config_file', help='Path for the configuration file', required=True)
     args = parser.parse_args()
 
-    start(args.config_file)
+    start(args.config_file, zvelo_helper)

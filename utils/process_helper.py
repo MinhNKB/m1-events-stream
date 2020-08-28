@@ -68,7 +68,7 @@ class SendDataProcess(Process):
         logging.info("Thread %s - %s stopped - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
 class ProcessHelper:
-    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata,
+    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata, zvelo_helper,
                  max_process = 4, processed_file_log = None):
         self.sftp_configs = sftp_configs
         self.load_configs = load_configs
@@ -79,10 +79,7 @@ class ProcessHelper:
         self.file_queue = Queue()
         self.processed_file_log = processed_file_log
 
-        path = "/data/zvelo_urldb"
-        host = ""
-        serial = ""
-        self.zvelo_helper = ZveloHelper(path, 0, host, serial)
+        self.zvelo_helper = zvelo_helper
 
 
     def add_file(self, file_path):
