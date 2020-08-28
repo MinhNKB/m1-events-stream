@@ -3,9 +3,13 @@ from io import BytesIO
 import logging
 
 class SFTPReader:
-    def __init__(self, host, port, username, password, max_retry):
+    def __init__(self, host, port, username, password, ssh_key_path, max_retry):
         self.transport = paramiko.Transport((host, port))
-        self.transport.connect(None, username, password)
+        if ssh_key_path is not None:
+            pkey = paramiko.RSAKey.from_private_key_file(ssh_key_path)
+            self.transport.connect(None, username, pkey=pkey)
+        else:
+            self.transport.connect(None, username, password)
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
         self.max_retry = max_retry
 
@@ -26,11 +30,11 @@ class SFTPReader:
                 return data_io
             except (EOFError, paramiko.ssh_exception.SSHException, OSError) as ex:
                 retry += 1
-                # back off in steps of 10, 20.. seconds
-                time.sleep(abs(retry) * 10)
+                # back off in steps of 5, 10, 15.. seconds
+                time.sleep(abs(retry) * 5)
             finally:
-                if hasattr(self.sftp, "close") and callable(self.sftp.close):
+                if self.sftp is not None:
                     self.sftp.close()
-                if hasattr(self.transport, "close") and callable(self.transport.close):
+                if self.transport is not None:
                     self.transport.close()
         return None

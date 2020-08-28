@@ -1,9 +1,11 @@
 from multiprocessing import Process
+from Queue import Queue
 from utils.sftp_reader import SFTPReader
 from utils.data_loader import DataLoader
 from utils.event_sender import EventSender
 from datetime import datetime
 import logging
+import os
 
 class SendDataProcess(Process):
     def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata, file_path):
@@ -15,6 +17,7 @@ class SendDataProcess(Process):
         self.port = sftp_configs["port"]
         self.username = sftp_configs["username"]
         self.password = sftp_configs["password"]
+        self.ssh_key_path = sftp_configs["ssh_key_path"]
         self.sftp_max_retry = sftp_configs["max_retry"]
 
         # Load
@@ -38,7 +41,8 @@ class SendDataProcess(Process):
         thread_id = start.strftime('%Y%m%d%H%M%S')
         logging.info("Thread %s - %s started" % (thread_id, self.file_path))
 
-        sftp_reader = SFTPReader(self.host, self.port, self.username, self.password, self.sftp_max_retry)
+        sftp_reader = SFTPReader(self.host, self.port, self.username, self.password,
+                                 self.ssh_key_path, self.sftp_max_retry)
         byte_io = sftp_reader.load_file(self.file_path)
 
         step = datetime.now()
@@ -60,18 +64,43 @@ class SendDataProcess(Process):
         logging.info("Thread %s - %s stopped - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
 class ProcessHelper:
-    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata):
+    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata,
+                 max_process = 4, processed_file_log = None):
         self.sftp_configs = sftp_configs
         self.load_configs = load_configs
         self.eventhub_configs = eventhub_configs
         self.metadata = metadata
-        self.process_list = []
 
-    def start_process(self, file_path):
-        process = SendDataProcess(self.sftp_configs, self.load_configs, self.eventhub_configs, self.metadata, file_path)
-        process.start()
-        self.process_list.append(process)
+        self.process_queue = Queue(max_process)
+        self.file_queue = Queue()
+        self.processed_file_log = processed_file_log
+
+    def add_file(self, file_path):
+        self.file_queue.put(file_path)
 
     def join_all(self):
-        for process in self.process_list:
-            process.join()
+        for process in iter(self.process_queue.get, None):
+            if process is not None:
+                process.join()
+
+    def start_process(self):
+        if self.processed_file_log is not None:
+            log_writer = open(self.processed_file_log, "a+")
+        else:
+            log_writer = None
+
+        while (not self.process_queue.empty()) \
+                and (not self.process_queue.queue[0].is_alive()):
+            process = self.process_queue.get()
+            if log_writer is not None:
+                log_writer.write(process.file_path + '\n')
+
+        if log_writer is not None:
+            log_writer.close()
+
+        while (not self.process_queue.full()) \
+                and (not self.file_queue.empty()):
+            file_path = self.file_queue.get()
+            process = SendDataProcess(self.sftp_configs, self.load_configs, self.eventhub_configs, self.metadata, file_path)
+            process.start()
+            self.process_queue.put(process)

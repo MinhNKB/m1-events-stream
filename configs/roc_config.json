@@ -1,5 +1,7 @@
 {
-  "process_interval_seconds" : 10,
+  "process_interval_seconds" : 5,
+  "max_process_count" : 8,
+  "processed_files_log" : "processed_file.txt",
   "load_configs": {
     "columns_seletion": [
       "UserID",
@@ -31,14 +33,15 @@
     "port": 22,
     "username": "jaadmin",
     "password": "JAWelcome@2020",
+    "ssh_key_path" : null,
     "folder_path" : "/home/minhnkb/m1-events-stream/sample-data",
-    "start_reload_from_seconds" : 100000,
-    "process_from_last_seconds" : 20,
+    "start_reload_from_seconds" : 64000,
+    "process_from_last_seconds" : 30,
     "max_retry" : 10
   },
   "eventhub": {
-    "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=eGzS1McwOPqcpRr2aeG/9KOWgrVAvPBbxn5vYGWt3q8=;EntityPath=m1-event",
-    "eventhub_name": "m1-event",
+    "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=tSVopKkJ8YVBZn2HZ+wgW04gmCKLaUHgTkIJUMNmup0=;EntityPath=m1-eventhub",
+    "eventhub_name": "m1-eventhub",
     "max_event_per_batch": 10000,
     "max_retry" : 10
   },
