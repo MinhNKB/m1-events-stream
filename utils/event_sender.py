@@ -5,7 +5,7 @@ import logging
 import os
 
 class EventSender:
-    def __init__(self, connection_str, eventhub_name, max_event_per_batch, max_retry, metadata = None):
+    def __init__(self, connection_str, eventhub_name, max_event_per_batch, max_retry, metadata, zvelo_helper):
         self.event_sender = EventHubProducerClient.from_connection_string(connection_str, eventhub_name=eventhub_name)
         self.event_count = max_event_per_batch
         self.max_retry = max_retry # Retry maximum 5 times before throw exeption
@@ -16,7 +16,9 @@ class EventSender:
         self.METADATA_NAME = "metadata"
         self.COLUMNS_NAME = "columns"
         self.VALUES_NAME = "values"
+        self.ZVELO_NAME = "zvelo"
 
+        self.zvelo_helper = zvelo_helper
 
     def send(self, df):
         for i in range(0, len(df.index), self.event_count):
@@ -30,8 +32,11 @@ class EventSender:
     def __send_batch(self, df):
         columns = df.columns.tolist()
         values = df.values.tolist()
+        urls = df["url"].unique().tolist()
 
-        data_dict = {self.COLUMNS_NAME : columns, self.VALUES_NAME : values}
+        zvelo_data = self.zvelo_helper.process_list_urls(urls)
+
+        data_dict = {self.COLUMNS_NAME : columns, self.VALUES_NAME : values, self.ZVELO_NAME : zvelo_data}
 
         if self.metadata is not None:
             data_dict[self.METADATA_NAME] = self.metadata
@@ -46,11 +51,13 @@ class EventSender:
             data_dict_1 = {}
             data_dict_2 = {}
             half_length = len(data_dict[self.VALUES_NAME]) // 2
-            data_dict_2[self.COLUMNS_NAME] = data_dict[self.COLUMNS_NAME]
+            data_dict_1[self.COLUMNS_NAME] = data_dict[self.COLUMNS_NAME]
             data_dict_1[self.VALUES_NAME] = data_dict[self.VALUES_NAME][:half_length]
+            data_dict_1[self.ZVELO_NAME] = data_dict[self.ZVELO_NAME]
+
             data_dict_2[self.COLUMNS_NAME] = data_dict[self.COLUMNS_NAME]
             data_dict_2[self.VALUES_NAME] = data_dict[self.VALUES_NAME][half_length:]
-
+            data_dict_2[self.ZVELO_NAME] = data_dict[self.ZVELO_NAME]
 
             if self.metadata is not None:
                 data_dict_1[self.METADATA_NAME] = self.metadata

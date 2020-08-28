@@ -25,11 +25,11 @@ class DataLoader:
                 filtered_df[k] = pd.Series(map("".join,filtered_df[v].values.tolist()),index=filtered_df.index)
 
         # Filter data by rows condition
-        # TODO
+        filtered_df = filtered_df[(filtered_df["AppNumber"] != 10) | (filtered_df["DownloadVolume"] > 0)]
+
 
         # Use Zvelo to add column
         # TODO
-        filtered_df["appname"] = ""
         filtered_df["category0"] = ""
         filtered_df["category1"] = ""
         filtered_df["category2"] = ""

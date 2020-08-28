@@ -3,12 +3,13 @@ from Queue import Queue
 from utils.sftp_reader import SFTPReader
 from utils.data_loader import DataLoader
 from utils.event_sender import EventSender
+from utils.zvelo_helper import ZveloHelper
 from datetime import datetime
 import logging
 import os
 
 class SendDataProcess(Process):
-    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata, file_path):
+    def __init__(self, sftp_configs, load_configs, zvelo_helper, eventhub_configs, metadata, file_path):
         super(SendDataProcess, self).__init__()
         self.file_path = file_path
 
@@ -25,6 +26,9 @@ class SendDataProcess(Process):
         self.rename_dict = load_configs["rename_dict"]
         self.fill_na_dict = load_configs["fill_na_dict"]
         self.concat_dict = load_configs["concat_dict"]
+
+        # Zvelo
+        self.zvelo_helper = zvelo_helper
 
         # Eventhub
         self.connection_string = eventhub_configs["connection_string"]
@@ -55,7 +59,8 @@ class SendDataProcess(Process):
         step = datetime.now()
         logging.info("Thread %s - %s parsed data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
-        event_sender = EventSender(self.connection_string, self.eventhub_name, self.max_event_per_batch, self.eventhub_max_retry, self.metadata)
+        event_sender = EventSender(self.connection_string, self.eventhub_name, self.max_event_per_batch,
+                                   self.eventhub_max_retry, self.metadata, self.zvelo_helper)
 
         event_sender.send(processed_df)
         event_sender.close()
@@ -64,16 +69,21 @@ class SendDataProcess(Process):
         logging.info("Thread %s - %s stopped - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
 class ProcessHelper:
-    def __init__(self, sftp_configs, load_configs, eventhub_configs, metadata,
+    def __init__(self, sftp_configs, load_configs, zvelo_configs, eventhub_configs, metadata,
                  max_process = 4, processed_file_log = None):
         self.sftp_configs = sftp_configs
         self.load_configs = load_configs
+        self.zvelo_configs = zvelo_configs
         self.eventhub_configs = eventhub_configs
         self.metadata = metadata
 
         self.process_queue = Queue(max_process)
         self.file_queue = Queue()
         self.processed_file_log = processed_file_log
+
+        self.zvelo_helper = ZveloHelper(self.zvelo_configs["path"], self.zvelo_configs["host"],
+                                        self.zvelo_configs["serial"])
+
 
     def add_file(self, file_path):
         self.file_queue.put(file_path)
@@ -101,6 +111,7 @@ class ProcessHelper:
         while (not self.process_queue.full()) \
                 and (not self.file_queue.empty()):
             file_path = self.file_queue.get()
-            process = SendDataProcess(self.sftp_configs, self.load_configs, self.eventhub_configs, self.metadata, file_path)
+            process = SendDataProcess(self.sftp_configs, self.load_configs, self.zvelo_helper,
+                                      self.eventhub_configs, self.metadata, file_path)
             process.start()
             self.process_queue.put(process)

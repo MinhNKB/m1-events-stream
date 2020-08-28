@@ -20,8 +20,8 @@ def start(config_file):
         else:
             processed_files = set()
 
-        process_helper = ProcessHelper(configs["sftp"], configs["load_configs"], configs["eventhub"],
-                                       configs["metadata"], configs["max_process_count"],
+        process_helper = ProcessHelper(configs["sftp"], configs["load_configs"], configs["zvelo"],
+                                       configs["eventhub"], configs["metadata"], configs["max_process_count"],
                                        configs["processed_files_log"])
 
         sftp_configs = configs["sftp"]

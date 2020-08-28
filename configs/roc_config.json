@@ -11,7 +11,8 @@
       "UploadVolume",
       "DownloadVolume",
       "HttpHost",
-      "HttpUri"
+      "HttpUri",
+      "AppNumber"
     ],
     "fill_na_dict": {
       "HttpHost": "",
@@ -38,6 +39,14 @@
     "start_reload_from_seconds" : 64000,
     "process_from_last_seconds" : 30,
     "max_retry" : 10
+  },
+  "zvelo" : {
+    "path" : "",
+    "host" : "",
+    "serial" : "",
+    "update_url" : "",
+    "v4_map_id" : "",
+    "rep_map_id" : ""
   },
   "eventhub": {
     "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=tSVopKkJ8YVBZn2HZ+wgW04gmCKLaUHgTkIJUMNmup0=;EntityPath=m1-eventhub",
