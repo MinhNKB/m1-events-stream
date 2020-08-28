@@ -16,7 +16,8 @@ class FileWatcher:
         current_unix_time = int(time.time())
 
         all_files_filtered = filter(lambda file: ((current_unix_time - file.st_mtime) < from_last_seconds) \
-                                                 and (("%s/%s" % (folder_path, file.filename)) not in processed_list), all_files)
+                                                 and (("%s/%s" % (folder_path, file.filename)) not in processed_list)
+                                                 and ("000000000" not in file.filename) , all_files)
 
         return all_files_filtered
 
