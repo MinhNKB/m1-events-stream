@@ -79,7 +79,10 @@ class ProcessHelper:
         self.file_queue = Queue()
         self.processed_file_log = processed_file_log
 
-        self.zvelo_helper = ZveloHelper("", 0, "", "")
+        path = "/data/zvelo_urldb"
+        host = ""
+        serial = ""
+        self.zvelo_helper = ZveloHelper(path, 0, host, serial)
 
 
     def add_file(self, file_path):
