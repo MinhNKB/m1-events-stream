@@ -43,10 +43,7 @@
   "zvelo" : {
     "path" : "",
     "host" : "",
-    "serial" : "",
-    "update_url" : "",
-    "v4_map_id" : "",
-    "rep_map_id" : ""
+    "serial" : ""
   },
   "eventhub": {
     "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=tSVopKkJ8YVBZn2HZ+wgW04gmCKLaUHgTkIJUMNmup0=;EntityPath=m1-eventhub",
