@@ -32,7 +32,6 @@ def start(config_file, zvelo_helper):
         is_initial_run = True
 
         while True:
-            logging.info("Invoke file watcher")
             if is_initial_run:
                 files_to_process = file_watcher.get_files_to_process(sftp_configs["folder_path"],
                                                                      sftp_configs["start_reload_from_seconds"], processed_files)
@@ -40,7 +39,6 @@ def start(config_file, zvelo_helper):
             else:
                 files_to_process = file_watcher.get_files_to_process(sftp_configs["folder_path"],
                                                                      sftp_configs["process_from_last_seconds"], processed_files)
-
             for file in files_to_process:
                 file_path = "%s/%s" % (sftp_configs["folder_path"], file.filename)
                 processed_files.add(file_path)
@@ -62,7 +60,7 @@ if __name__ == '__main__':
     path = "/data/zvelo_urldb"
     host = ""
     serial = ""
-    zvelo_helper = ZveloHelper(path, 0, host, serial)
+    zvelo_helper = ZveloHelper(path, host, serial)
     logging.info("Zvelo Initialzed")
 
     parser = argparse.ArgumentParser(description='Start the streaming process.')

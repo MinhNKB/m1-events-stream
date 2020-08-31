@@ -3,7 +3,6 @@ from SiteFilterDB import *
 
 class ZveloHelper:
     def __init__(self, path, host, serial):
-        print(path, host, serial)
         r = url_init(path, 0, host, serial);
         if r:
             print url_errstr(r)
@@ -11,6 +10,7 @@ class ZveloHelper:
     def process_list_urls(self, urls):
         results = []
         for url in urls:
+            url = url.decode("ascii", errors="ignore").encode()
             category0, category1, category2 = self.lookup(url)
             results.append([url, category0, category1, category2])
         return results

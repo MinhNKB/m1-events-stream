@@ -18,12 +18,7 @@
       "HttpHost": "",
       "HttpUri": ""
     },
-    "concat_dict": {
-      "Url": [
-        "HttpHost",
-        "HttpUri"
-      ]
-    },
+    "concat_dict": null,
     "rename_dict": {
       "StartDate(ms)": "StartDate",
       "Duration(ms)": "Duration"
@@ -36,7 +31,7 @@
     "password": "JAWelcome@2020",
     "ssh_key_path" : null,
     "folder_path" : "/home/minhnkb/m1-events-stream/sample-data",
-    "start_reload_from_seconds" : 64000,
+    "start_reload_from_seconds" : 640000,
     "process_from_last_seconds" : 30,
     "max_retry" : 10
   },

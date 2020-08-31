@@ -27,13 +27,6 @@ class DataLoader:
         # Filter data by rows condition
         filtered_df = filtered_df[(filtered_df["AppNumber"] != 10) | (filtered_df["DownloadVolume"] > 0)]
 
-
-        # Use Zvelo to add column
-        # TODO
-        # filtered_df["category0"] = ""
-        # filtered_df["category1"] = ""
-        # filtered_df["category2"] = ""
-
         # Rename columns
         if rename_dict is not None:
             filtered_df.rename(columns=rename_dict, inplace=True)
