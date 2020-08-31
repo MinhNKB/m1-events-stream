@@ -31,17 +31,26 @@
     "password": "JAWelcome@2020",
     "ssh_key_path" : null,
     "folder_path" : "/home/minhnkb/m1-events-stream/sample-data",
-    "start_reload_from_seconds" : 640000,
+    "start_reload_from_seconds" : 36000,
     "process_from_last_seconds" : 30,
     "max_retry" : 10
+  },
+  "zvelo" : {
+    "path" : "/data/zvelo_urldb"
   },
   "eventhub": {
     "connection_string": "Endpoint=sb://jademo-eventhubs.servicebus.windows.net/;SharedAccessKeyName=FullAccessPolicy;SharedAccessKey=tSVopKkJ8YVBZn2HZ+wgW04gmCKLaUHgTkIJUMNmup0=;EntityPath=m1-eventhub",
     "eventhub_name": "m1-eventhub",
-    "max_event_per_batch": 10000,
+    "max_event_per_batch": 8000,
     "max_retry" : 10
   },
+  "adls" :  {
+    "blob_name" : "zpdsnfsa07",
+    "blob_key" : "ZwZIp9NoOlRQ3dlQBXbJX0PPCMqgXuWz+dxCIOnqlIf8AbBldiIrYhXTiqrSXLEBH6+QCv/Eb+DFU2H1aUBsTA==",
+    "blob_container" : "legacy",
+    "blob_path" : "landing/ipdr"
+  },
   "metadata": {
-    "source": "MOC"
+    "source": "ROC"
   }
 }

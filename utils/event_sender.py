@@ -32,7 +32,7 @@ class EventSender:
     def __send_batch(self, df):
         columns = df.columns.tolist()
         values = df.values.tolist()
-        urls = df["url"].unique().tolist()
+        urls = df["httphost"].unique().tolist()
 
         zvelo_data = self.zvelo_helper.process_list_urls(urls)
 
@@ -46,7 +46,7 @@ class EventSender:
         json_string = json.dumps(data_dict)
 
         # logging.info("Message size %d" % sys.getsizeof(json_string))
-        if sys.getsizeof(json_string) > self.BATCH_LIMIT_SIZE:
+        if sys.getsizeof(json_string) >= self.BATCH_LIMIT_SIZE:
             # Split to two before sending data
             data_dict_1 = {}
             data_dict_2 = {}
