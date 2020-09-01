@@ -34,7 +34,10 @@ class EventSender:
         values = df.values.tolist()
         urls = df["httphost"].unique().tolist()
 
-        zvelo_data = self.zvelo_helper.process_list_urls(urls)
+        if self.zvelo_helper is not None:
+            zvelo_data = self.zvelo_helper.process_list_urls(urls)
+        else:
+            zvelo_data = None
 
         data_dict = {self.COLUMNS_NAME : columns, self.VALUES_NAME : values, self.ZVELO_NAME : zvelo_data}
 

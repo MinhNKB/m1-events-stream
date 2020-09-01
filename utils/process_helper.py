@@ -22,19 +22,26 @@ class SendDataProcess(Process):
         self.sftp_max_retry = sftp_configs["max_retry"]
 
         # Load
-        self.columns_seletion = load_configs["columns_seletion"]
-        self.rename_dict = load_configs["rename_dict"]
-        self.fill_na_dict = load_configs["fill_na_dict"]
-        self.concat_dict = load_configs["concat_dict"]
+        if load_configs is not None:
+            self.try_send_data = True
+            self.columns_seletion = load_configs["columns_seletion"]
+            self.rename_dict = load_configs["rename_dict"]
+            self.fill_na_dict = load_configs["fill_na_dict"]
+            self.concat_dict = load_configs["concat_dict"]
+        else:
+            self.try_send_data = False
 
         # Zvelo
         self.zvelo_helper = zvelo_helper
 
         # Eventhub
-        self.connection_string = eventhub_configs["connection_string"]
-        self.eventhub_name = eventhub_configs["eventhub_name"]
-        self.max_event_per_batch = eventhub_configs["max_event_per_batch"]
-        self.eventhub_max_retry = eventhub_configs["max_retry"]
+        if eventhub_configs is not None:
+            self.connection_string = eventhub_configs["connection_string"]
+            self.eventhub_name = eventhub_configs["eventhub_name"]
+            self.max_event_per_batch = eventhub_configs["max_event_per_batch"]
+            self.eventhub_max_retry = eventhub_configs["max_retry"]
+        else:
+            self.try_send_data = False
 
         # ADLS
         if adls_configs is not None:
@@ -63,21 +70,21 @@ class SendDataProcess(Process):
         step = datetime.now()
         logging.info("Thread %s - %s loaded data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
-        data_loader = DataLoader()
+        if self.try_send_data:
+            data_loader = DataLoader()
 
-        processed_df = data_loader.load(byte_io, self.columns_seletion, fill_na_dict=self.fill_na_dict,
-                                        concat_dict=self.concat_dict, rename_dict=self.rename_dict)
-        step = datetime.now()
-        logging.info("Thread %s - %s parsed data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
+            processed_df = data_loader.load(byte_io, self.columns_seletion, fill_na_dict=self.fill_na_dict,
+                                            concat_dict=self.concat_dict, rename_dict=self.rename_dict)
+            step = datetime.now()
+            logging.info("Thread %s - %s parsed data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
-        event_sender = EventSender(self.connection_string, self.eventhub_name, self.max_event_per_batch,
-                                   self.eventhub_max_retry, self.metadata, self.zvelo_helper)
+            event_sender = EventSender(self.connection_string, self.eventhub_name, self.max_event_per_batch,
+                                       self.eventhub_max_retry, self.metadata, self.zvelo_helper)
+            event_sender.send(processed_df)
+            event_sender.close()
 
-        event_sender.send(processed_df)
-        event_sender.close()
-
-        step = datetime.now()
-        logging.info("Thread %s - %s sent data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
+            step = datetime.now()
+            logging.info("Thread %s - %s sent data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
         # Copy raw data to ADLS
         if (not self.blob_name == False) or (not self.blob_key == False):
@@ -97,8 +104,11 @@ class ProcessHelper:
         self.sftp_configs = sftp_configs
         self.load_configs = load_configs
 
-        zvelo_path = zvelo_configs["path"].decode("ascii").encode()
-        self.zvelo_helper = ZveloHelper(zvelo_path)
+        if zvelo_configs is not None:
+            zvelo_path = zvelo_configs["path"].decode("ascii").encode()
+            self.zvelo_helper = ZveloHelper(zvelo_path)
+        else:
+            self.zvelo_helper = None
 
         self.eventhub_configs = eventhub_configs
         self.adls_configs = adls_configs
