@@ -37,10 +37,14 @@ class SendDataProcess(Process):
         self.eventhub_max_retry = eventhub_configs["max_retry"]
 
         # ADLS
-        self.blob_name = adls_configs["blob_name"]
-        self.blob_key = adls_configs["blob_key"]
-        self.blob_container = adls_configs["blob_container"]
-        self.blob_path = adls_configs["blob_path"]
+        if adls_configs is not None:
+            self.blob_name = adls_configs["blob_name"]
+            self.blob_key = adls_configs["blob_key"]
+            self.blob_container = adls_configs["blob_container"]
+            self.blob_path = adls_configs["blob_path"]
+        else:
+            self.blob_name = None
+            self.blob_key = None
 
         # Metadata
         self.metadata = metadata
@@ -55,6 +59,7 @@ class SendDataProcess(Process):
                                  self.ssh_key_path, self.sftp_max_retry)
         byte_io = sftp_reader.load_file(self.file_path)
 
+        sftp_reader.close()
         step = datetime.now()
         logging.info("Thread %s - %s loaded data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
@@ -72,14 +77,18 @@ class SendDataProcess(Process):
         event_sender.close()
 
         step = datetime.now()
-        logging.info("Thread %s - %s stopped - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
+        logging.info("Thread %s - %s sent data - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
         # Copy raw data to ADLS
-        blob_helper = BlobHelper(self.blob_name, self.blob_key)
-        file_name = self.file_path[self.file_path.rindex("/") + 1 : ]
-        blob_path = "%s/%s" % (self.blob_path, file_name)
-        byte_io.seek(0)
-        blob_helper.upload_data(byte_io, self.blob_container, blob_path, overwrite=True)
+        if (not self.blob_name == False) or (not self.blob_key == False):
+            blob_helper = BlobHelper(self.blob_name, self.blob_key)
+            file_name = self.file_path[self.file_path.rindex("/") + 1 : ]
+            blob_path = "%s/%s" % (self.blob_path, file_name)
+            byte_io.seek(0)
+            blob_helper.upload_data(byte_io, self.blob_container, blob_path, overwrite=True)
+
+        step = datetime.now()
+        logging.info("Thread %s - %s stopped - Time: %d" % (thread_id, self.file_path, (step - start).seconds))
 
 
 class ProcessHelper:

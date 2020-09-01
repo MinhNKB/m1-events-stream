@@ -32,9 +32,10 @@ class SFTPReader:
                 retry += 1
                 # back off in steps of 5, 10, 15.. seconds
                 time.sleep(abs(retry) * 5)
-            # finally:
-            #     if self.sftp is not None:
-            #         self.sftp.close()
-            #     if self.transport is not None:
-            #         self.transport.close()
         return None
+
+    def close(self):
+        if self.sftp is not None:
+            self.sftp.close()
+        if self.transport is not None:
+            self.transport.close()
