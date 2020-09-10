@@ -9,7 +9,7 @@ class DataLoader:
     def load(self, byte_io, columns_seletion, compression='gzip', error_bad_lines=False,
              fill_na_dict=None, concat_dict=None, rename_dict=None, to_lower=True):
         # Load raw data
-        raw_df = pd.read_csv(byte_io, compression=compression, error_bad_lines=error_bad_lines, dtype=str)
+        raw_df = pd.read_csv(byte_io, compression=compression, error_bad_lines=error_bad_lines, dtype=str, encoding='latin-1')
 
         # Filter selected columns
         filtered_df = raw_df.filter(columns_seletion)
